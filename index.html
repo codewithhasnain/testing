@@ -634,6 +634,16 @@
       const paymentButton = document.getElementById('rzp-button');
       const originalButtonHTML = paymentButton.innerHTML;
 
+      // Enable custom amount input when "Custom Amount" is selected
+      const customAmountRadio = document.getElementById('customAmountRadio');
+      const customAmountInput = document.getElementById('customAmount');
+      customAmountRadio.addEventListener('change', () => {
+        customAmountInput.disabled = !customAmountRadio.checked;
+        if (customAmountRadio.checked) {
+          customAmountInput.focus();
+        }
+      });
+
       nextButtons.forEach(button => {
         button.addEventListener('click', () => navigateToStep(button, 'next'));
       });
@@ -685,10 +695,14 @@
       function validateDonationAmount() {
         const amountSelected = document.querySelector('input[name="amount"]:checked') !== null;
         const customAmount = document.getElementById('customAmount');
-        if (amountSelected && customAmount.value.trim() !== "") {
+        if (amountSelected) {
+          if (customAmountRadio.checked && customAmount.value.trim() === "") {
+            alert("Please enter a custom amount.");
+            return false;
+          }
           return true;
         } else {
-          alert("Please select a donation amount or enter a custom amount.");
+          alert("Please select a donation amount.");
           return false;
         }
       }
@@ -856,8 +870,9 @@
       }
 
       function getFormData() {
+        const amount = customAmountRadio.checked ? document.getElementById('customAmount').value : document.querySelector('input[name="amount"]:checked').value;
         return {
-          amount: document.querySelector('input[name="amount"]:checked').value,
+          amount: amount,
           donationType: document.querySelector('select[name="donationType"]').value,
           firstName: document.getElementById('firstName').value,
           lastName: document.getElementById('lastName').value,
